@@ -1,0 +1,5 @@
+Use customized ssh config
+===
+
+Use `-v` to mount host dir to /root/.ssh/ like this:
+  $ docker run -it -v /home/user/.ssh:/root/.ssh myhadoop /bin/sh
