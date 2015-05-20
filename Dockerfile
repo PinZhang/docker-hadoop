@@ -23,9 +23,6 @@ RUN cp /root/.ssh/id_rsa.pub /root/.ssh/authorized_keys
 ADD ssh_config /root/.ssh/config
 RUN chmod 600 /root/.ssh/config
 RUN chown root:root /root/.ssh/config
-
-EXPOSE 22
-CMD ["/usr/sbin/sshd"]
 ########### sshd end ###########
 
 # install hadoop
@@ -58,4 +55,12 @@ RUN $HADOOP_PREFIX/bin/hdfs namenode -format
 ADD ./etc/ /etc/
 RUN chmod 700 /etc/bootstrap.sh \
     && chown root:root /etc/bootstrap.sh
+
+CMD ["/etc/bootstrap.sh", "-d"]
+
+# ssh
+EXPOSE 22
+
+# Hdfs ports
+EXPOSE 50010 50020 50070 50075 50090
 
