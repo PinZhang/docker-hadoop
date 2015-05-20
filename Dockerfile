@@ -38,13 +38,20 @@ RUN mkdir -p $HADOOP_PARENT_DIR \
 
 # Add Hadoop bin to $PATH
 ENV JAVA_HOME          /usr/lib/jvm/java-6-openjdk-amd64/jre
-ENV HADOOP_HOME        $HADOOP_PARENT_DIR/hadoop-$HADOOP_VERSION
-ENV PATH               $HADOOP_HOME/bin:$PATH
-ENV HADOOP_CONF_DIR    $HADOOP_HOME/etc/hadoop
+ENV HADOOP_PREFIX      $HADOOP_PARENT_DIR/hadoop-$HADOOP_VERSION
+ENV HADOOP_HOME        $HADOOP_PREFIX
+ENV PATH               $HADOOP_PREFIX/bin:$PATH
+ENV HADOOP_CONF_DIR    $HADOOP_PREFIX/etc/hadoop
 
-RUN sed -i '/^export JAVA_HOME/ s:.*:export JAVA_HOME=/usr/lib/jvm/java-6-openjdk-amd64/jre\nexport HADOOP_HOME=/usr/lib/hadoop/hadoop-2.6.0 \n:' $HADOOP_HOME/etc/hadoop/hadoop-env.sh
-RUN sed -i '/^export HADOOP_CONF_DIR/ s:.*:export HADOOP_CONF_DIR=/usr/lib/hadoop/hadoop-2.6.0/etc/hadoop/:' $HADOOP_HOME/etc/hadoop/hadoop-env.sh
+COPY hadoop_configs/*  $HADOOP_CONF_DIR/
 
+# Create dirs for hdfs, we could always reset them by volumes mounting.
+RUN mkdir -p /hdfs/name/ \
+    mkdir -p /hdfs/data/ \
+    mkdir -p /hdfs/namesecondary
+
+# need to run this, otherwise namenode can't be started.
+RUN $HADOOP_PREFIX/bin/hdfs namenode -format
 # hadoop-env.sh
 
 # copy /etc/bootstrap.sh
