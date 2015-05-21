@@ -40,10 +40,10 @@ ENV HADOOP_HOME        $HADOOP_PREFIX
 ENV PATH               $HADOOP_PREFIX/bin:$PATH
 ENV HADOOP_CONF_DIR    $HADOOP_PREFIX/etc/hadoop
 
-COPY hadoop_configs    $HADOOP_CONF_DIR
-
 ENV HADOOP_MAPRED_HOME $HADOOP_PREFIX
 ENV YARN_CONF_DIR      $HADOOP_CONF_DIR
+
+COPY hadoop_configs    $HADOOP_CONF_DIR
 
 # Create dirs for hdfs, we could always reset them by volumes mounting.
 RUN mkdir -p /hdfs/name/ \
@@ -54,6 +54,9 @@ RUN mkdir -p /hdfs/name/ \
 RUN $HADOOP_PREFIX/bin/hdfs namenode -format
 # hadoop-env.sh
 
+# use 8002
+RUN sed -i '/^Port 22/ s:.*:Port 8002:' /etc/ssh/sshd_config
+
 # copy /etc/bootstrap.sh
 ADD ./etc/ /etc/
 RUN chmod 700 /etc/bootstrap.sh \
@@ -62,8 +65,14 @@ RUN chmod 700 /etc/bootstrap.sh \
 CMD ["/etc/bootstrap.sh", "-d"]
 
 # ssh
-EXPOSE 22
+EXPOSE 8002
 
 # Hdfs ports
 EXPOSE 50010 50020 50070 50075 50090
+
+# Mapred ports
+EXPOSE 19888
+
+#Yarn ports
+EXPOSE 8030 8031 8032 8033 8040 8042 8088
 
