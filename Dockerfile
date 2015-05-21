@@ -40,7 +40,10 @@ ENV HADOOP_HOME        $HADOOP_PREFIX
 ENV PATH               $HADOOP_PREFIX/bin:$PATH
 ENV HADOOP_CONF_DIR    $HADOOP_PREFIX/etc/hadoop
 
-COPY hadoop_configs  $HADOOP_CONF_DIR
+COPY hadoop_configs    $HADOOP_CONF_DIR
+
+ENV HADOOP_MAPRED_HOME $HADOOP_PREFIX
+ENV YARN_CONF_DIR      $HADOOP_CONF_DIR
 
 # Create dirs for hdfs, we could always reset them by volumes mounting.
 RUN mkdir -p /hdfs/name/ \
