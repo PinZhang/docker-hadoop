@@ -1,5 +1,5 @@
 # Specify the base image
-FROM ubuntu:12.04
+FROM ubuntu:14.04
 
 MAINTAINER Pin Zhang <pzhang@mozilla.com>
 
@@ -8,7 +8,7 @@ ADD sources.list /etc/apt/
 RUN apt-get update
 
 # Install prerequisites
-RUN apt-get install -y ssh curl rsync openjdk-6-jdk openssh-server
+RUN apt-get install -y ssh curl rsync openjdk-7-jdk openssh-server
 
 ########### sshd start ###########
 # install sshd, copy from: https://docs.docker.com/examples/running_ssh_service/
@@ -33,7 +33,27 @@ RUN mkdir -p $HADOOP_PARENT_DIR \
     && curl -SL http://mirror.bit.edu.cn/apache/hadoop/common/stable/hadoop-$HADOOP_VERSION.tar.gz \
     | tar -zxC $HADOOP_PARENT_DIR
 
-# Add Hadoop bin to $PATH
+# install hive
+ENV HIVE_VERSION       1.2.0
+ENV HIVE_PARENT_DIR    /usr/lib/hive
+
+RUN mkdir -p $HIVE_PARENT_DIR \
+    && curl -SL http://mirror.bit.edu.cn/apache/hive/hive-$HIVE_VERSION/apache-hive-$HIVE_VERSION-bin.tar.gz \
+    | tar -zxC $HIVE_PARENT_DIR \
+    && mv $HIVE_PARENT_DIR/apache-hive-$HIVE_VERSION-bin $HIVE_PARENT_DIR/hive-$HIVE_VERSION
+
+# setup Hive
+ENV HIVE_HOME          $HIVE_PARENT_DIR/hive-$HIVE_VERSION
+ENV HIVE_CONF          $HIVE_HOME/conf
+ENV PATH               $HIVE_HOME/bin:$PATH
+
+COPY hive_configs      $HIVE_CONF
+
+# install java driver class, and add it into classpath
+RUN apt-get install -y libmysql-java
+RUN ln -n /usr/share/java/mysql-connector-java-5.1.28.jar  $HIVE_HOME/lib/mysql.jar
+
+# setup Hadoop
 ENV JAVA_HOME          /usr/lib/jvm/java-6-openjdk-amd64/jre
 ENV HADOOP_PREFIX      $HADOOP_PARENT_DIR/hadoop-$HADOOP_VERSION
 ENV HADOOP_HOME        $HADOOP_PREFIX

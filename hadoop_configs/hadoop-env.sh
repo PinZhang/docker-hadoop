@@ -22,7 +22,7 @@
 # remote nodes.
 
 # The java implementation to use.
-export JAVA_HOME=/usr/lib/jvm/java-6-openjdk-amd64/jre
+export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64/jre
 export HADOOP_HOME=/usr/lib/hadoop/hadoop-2.6.0 
 
 
