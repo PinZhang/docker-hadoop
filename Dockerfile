@@ -54,7 +54,7 @@ RUN apt-get install -y libmysql-java
 RUN ln -n /usr/share/java/mysql-connector-java-5.1.28.jar  $HIVE_HOME/lib/mysql.jar
 
 # setup Hadoop
-ENV JAVA_HOME          /usr/lib/jvm/java-6-openjdk-amd64/jre
+ENV JAVA_HOME          /usr/lib/jvm/java-7-openjdk-amd64/jre
 ENV HADOOP_PREFIX      $HADOOP_PARENT_DIR/hadoop-$HADOOP_VERSION
 ENV HADOOP_HOME        $HADOOP_PREFIX
 ENV PATH               $HADOOP_PREFIX/bin:$PATH
@@ -76,6 +76,8 @@ RUN $HADOOP_PREFIX/bin/hdfs namenode -format
 
 # use 8002
 RUN sed -i '/^Port 22/ s:.*:Port 8002:' /etc/ssh/sshd_config
+RUN sed  -i "/^[^#]*UsePAM/ s/.*/#&/"  /etc/ssh/sshd_config
+RUN echo "UsePAM no" >> /etc/ssh/sshd_config
 
 # copy /etc/bootstrap.sh
 ADD ./etc/ /etc/
